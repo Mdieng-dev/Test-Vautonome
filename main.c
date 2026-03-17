@@ -1,6 +1,11 @@
 #include "RTE_Components.h"
 #include  CMSIS_device_header
 #include "cmsis_os2.h"
+#include "Driver_I2C.h"                 // CMSIS Driver:I2C
+
+  //--------- extern 
+	
+	extern ARM_DRIVER_I2C Driver_I2C1; // “déclaration” structure I2C0
 #include "Driver_CAN.h"                 // CMSIS Driver:CAN
  
   //--------- extern 
@@ -13,6 +18,21 @@
  
  
   //--------- Prototype des Fonctions 
+  void Initialisation_I2C();
+ 
+ //--------- Tâches du code
+ 	void Thread (void *arg) {				
+		
+	char tab[2];
+		
+	tab[0] = 0xff;
+  tab[1] = 0xfb;		
+		
+  while (1) {
+    Driver_I2C1.MasterTransmit (0x278, tab, 2, false); // false = avec stop
+		while (Driver_I2C1.GetStatus().busy == 1); // attente fin transmission// Insert thread code here...
+  }
+}  
   void Initialisation_CAN();
  
  //--------- Tâches du code
@@ -37,6 +57,7 @@ int main (void) {
   // ...
  
   osKernelInitialize();                 // Initialize CMSIS-RTOS
+  Initialisation_I2C();
   Initialisation_CAN();
 	
 	  /* Create thread functions that start executing, 
@@ -50,6 +71,18 @@ int main (void) {
 
  
 //--------- Defintition des Fonctions
+void Initialisation_I2C()
+{
+	volatile int32_t                  status;
+	 
+	status=Driver_I2C1.Initialize(NULL);
+	status=Driver_I2C1.PowerControl(ARM_POWER_FULL);
+	
+	Driver_I2C1.Control( ARM_I2C_BUS_SPEED, // 2nd argument = débit
+											 ARM_I2C_BUS_SPEED_STANDARD ); // =100 kHz
+	
+	Driver_I2C1.Control( ARM_I2C_BUS_CLEAR, // 9 pulses d'horloge
+																			0 ); // non utilisé
 void Initialisation_CAN()
 {
 	volatile int32_t                  status;
