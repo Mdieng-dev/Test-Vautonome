@@ -8,20 +8,26 @@
 	extern  ARM_DRIVER_CAN    Driver_CAN1;
 	
 	
-  //--------- ID des T�ches ou autres
+  //--------- ID des Tâches ou autres
  osThreadId_t Tache1;                        // thread id
  
  
   //--------- Prototype des Fonctions 
   void Initialisation_CAN();
  
- //--------- T�ches du code
- 	void Thread (void *arg) {				
- 
+ //--------- Tâches du code
+ 	 	void Thread (void *arg) {				
+  
+	char data_buf[1];
+		
   while (1) {
-    // Insert thread code here...
-  }
-} 
+		tx_msg_info.id = ARM_CAN_STANDARD_ID (0x5F8);
+		tx_msg_info.rtr = 0; // 0 = trame DATA
+		data_buf [0] = 0xFA; // data à envoyer à placer dans un tableau de char
+			
+		Driver_CAN1.MessageSend(1, &tx_msg_info, data_buf, 1); // 1 data à envoyer  }
+	}
+	} 
   
 //--------- Main code
 int main (void) {
