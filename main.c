@@ -5,23 +5,29 @@
 
   //--------- extern 
 	
-	extern ARM_DRIVER_I2C Driver_I2C1; // ìdÈclarationî structure I2C0
+	extern ARM_DRIVER_I2C Driver_I2C1; // ‚Äúd√©claration‚Äù structure I2C0
 	
 	
-  //--------- ID des T‚ches ou autres
+  //--------- ID des T√¢ches ou autres
  osThreadId_t Tache1;                        // thread id
  
  
   //--------- Prototype des Fonctions 
   void Initialisation_I2C();
  
- //--------- T‚ches du code
+ //--------- T√¢ches du code
  	void Thread (void *arg) {				
- 
+		
+	char tab[2];
+		
+	tab[0] = 0xff;
+  tab[1] = 0xfb;		
+		
   while (1) {
-    // Insert thread code here...
+    Driver_I2C1.MasterTransmit (0x278, tab, 2, false); // false = avec stop
+		while (Driver_I2C1.GetStatus().busy == 1); // attente fin transmission// Insert thread code here...
   }
-} 
+}  
   
 //--------- Main code
 int main (void) {
@@ -51,10 +57,10 @@ void Initialisation_I2C()
 	status=Driver_I2C1.Initialize(NULL);
 	status=Driver_I2C1.PowerControl(ARM_POWER_FULL);
 	
-	Driver_I2C1.Control( ARM_I2C_BUS_SPEED, // 2nd argument = dÈbit
+	Driver_I2C1.Control( ARM_I2C_BUS_SPEED, // 2nd argument = d√©bit
 											 ARM_I2C_BUS_SPEED_STANDARD ); // =100 kHz
 	
 	Driver_I2C1.Control( ARM_I2C_BUS_CLEAR, // 9 pulses d'horloge
-																			0 ); // non utilisÈ
+																			0 ); // non utilis√©
 	
 }
